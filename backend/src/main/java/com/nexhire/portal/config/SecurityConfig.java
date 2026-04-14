@@ -41,21 +41,37 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Auth — always public
                 .requestMatchers("/api/auth/**").permitAll()
-                // Public GET — content modules (must come BEFORE specific secured paths)
-                .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/news", "/api/news/**",
-                        "/api/skills", "/api/skills/**", "/api/courses", "/api/courses/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/jobs/{id}").permitAll()
+
+                // ✅ WITHOUT /api prefix (what your frontend actually calls)
+                .requestMatchers(HttpMethod.GET,
+                        "/jobs", "/jobs/**",
+                        "/news", "/news/**",
+                        "/skills", "/skills/**",
+                        "/courses", "/courses/**").permitAll()
+
+                // ✅ WITH /api prefix (keep for consistency)
+                .requestMatchers(HttpMethod.GET,
+                        "/api/jobs", "/api/jobs/**",
+                        "/api/news", "/api/news/**",
+                        "/api/skills", "/api/skills/**",
+                        "/api/courses", "/api/courses/**").permitAll()
+
                 // Secured job endpoints
                 .requestMatchers(HttpMethod.GET, "/api/jobs/my-postings").hasRole("RECRUITER")
                 .requestMatchers(HttpMethod.POST, "/api/jobs").hasRole("RECRUITER")
                 .requestMatchers(HttpMethod.PUT, "/api/jobs/**").hasRole("RECRUITER")
                 .requestMatchers(HttpMethod.DELETE, "/api/jobs/**").hasRole("RECRUITER")
-                // Recommendations — public optional auth
+
+                // Recommendations — public
                 .requestMatchers(HttpMethod.GET, "/api/jobs/recommended").permitAll()
+                .requestMatchers(HttpMethod.GET, "/jobs/recommended").permitAll()
+
                 // Admin
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                 // AI endpoints — authenticated
                 .requestMatchers("/api/ai/**").authenticated()
+
                 // Everything else needs auth
                 .anyRequest().authenticated()
             )
@@ -88,4 +104,4 @@ public class SecurityConfig {
     }
 
     @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(12); }
-}
+}   
