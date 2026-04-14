@@ -1,7 +1,8 @@
 FROM eclipse-temurin:17-jdk-alpine AS builder
 WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+# COPY pom.xml .
+# COPY src ./src
+COPY . .
 RUN ./mvnw clean package -DskipTests 2>/dev/null || \
     (apk add --no-cache maven && mvn clean package -DskipTests)
 
